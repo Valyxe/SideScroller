@@ -1,0 +1,26 @@
+
+// imsInfo.txt images
+
+// title/help screen
+o Title.png
+o Help.png
+
+// hero's images
+s Hero_Running_Left.png 4
+s Hero_Running_Right.png 4
+s Hero_Left.png 1
+s Hero_Right.png 1
+s Hero_Attack_Left.png 4
+s Hero_Attack_Right.png 4
+
+// objects
+s Door.png 1 
+s Enemy_Left.png 1
+s Enemy_Right.png 1
+s Boss_Left.png 1
+s Boss_Right.png 1
+
+// scenery images
+o Far.png
+o Middle.png
+o Near.png

@@ -1,23 +1,25 @@
+package sprite;
 import java.awt.*;
 import java.awt.image.*;
+import java.util.ArrayList;
+
 
 /*
  * This class encompasses all data for each individual brick on the screen.
  */
-public class Brick
+public class Brick extends Entity
 {
 	private int mapX, mapY;
-	private int imageID;
 
 	private BufferedImage image;
 	private int height, width;
 
 	private int locY, locX;
 
-	public Brick(int id, int x, int y)
+	public Brick(ArrayList<BufferedImage> im, int x, int y, EntityType type)
 	{
+		super(x, y, im, 0, type);
 		mapX = x;  mapY = y;
-		imageID = id;
 	}
 
 	/*
@@ -34,14 +36,6 @@ public class Brick
 	public int getMapY()
 	{
 		return mapY;
-	}
-
-	/*
-	 * Get the strip image number of the brick.
-	 */
-	public int getImageID()
-	{
-		return imageID;
 	}
 
 	/*

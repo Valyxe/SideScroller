@@ -1,3 +1,4 @@
+package sprite;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.ArrayList;
@@ -5,26 +6,22 @@ import java.util.ArrayList;
 /*
  * This is the parent class for all Sprites in this game.
  */
-public class Sprite 
+public class Entity 
 {
 	//Default dimensions when there is no image
 	protected static final int SIZE = 12;   
 
 	//Image-related
-	@SuppressWarnings("unchecked")
-	private ArrayList<ArrayList> ims;
+	private ArrayList<BufferedImage> ims;
 	private String imageName;
 	protected BufferedImage image;
-	private int imageNum;
 	private int width, height;
 
 	protected boolean isLooping;
 
-	protected int pWidth, pHeight;
 	private boolean isActive = true;      
 
 	protected int locx, locy;
-	protected int dx, dy;
 	
 	private boolean isRepeating, ticksIgnored;
 	private int animPeriod;
@@ -34,18 +31,14 @@ public class Sprite
 	private int numImages;
 	private int imPosition;
 
-	@SuppressWarnings("unchecked")
-	public Sprite(int x, int y, int w, int h, ArrayList<ArrayList> images, double seqDuration, int xStep, int yStep) 
+	public Entity(int x, int y, ArrayList<BufferedImage> images, double seqDuration, EntityType type) 
 	{
 		locx = x; locy = y;
-		pWidth = w; pHeight = h;
-		dx = xStep; dy = yStep;
-
 		ims = images;
 		setImage(0);
 		
 		
-		numImages = ims.get(0).size();
+		numImages = ims.size();
 		imPosition = 0;
 		ticksIgnored = false;
 		showPeriod = (int) (1000 * seqDuration / numImages);
@@ -58,7 +51,7 @@ public class Sprite
 	public void setImage(int num)
 	{
 		//Set to initial image of set.
-		image = (BufferedImage) ims.get(num).get(0);
+		image = (BufferedImage) ims.get(0);
 		imageNum = num;
 		if(image == null)
 		{
@@ -72,7 +65,7 @@ public class Sprite
 			height = image.getHeight();
 		}
  		
-		numImages = ims.get(num).size();
+		numImages = ims.size();
 		animTotalTime = 0;
 		//Not looping, even if was before.
 		isLooping = false;
@@ -85,7 +78,7 @@ public class Sprite
 	{
 		//Can only loop if there is more than one image.
 		imPosition = 0;
-		if(ims.get(imageNum).size() > 1)
+		if(ims.size() > 1)
 		{
 			this.animPeriod = animPeriod;
 			this.seqDuration = seqDuration;
@@ -122,23 +115,7 @@ public class Sprite
 	{
 		return height;
 	}
-
-	/*
-	 * Returns the width of the panel.
-	 */
-	public int getPWidth()
-	{
-		return pWidth;
-	}
-
-	/*
-	 * Returns the height of the panel.
-	 */
-	public int getPHeight()
-	{
-		return pHeight;
-	}
-
+	
 	/*
 	 * Returns if the Sprite is active.
 	 */
@@ -191,32 +168,6 @@ public class Sprite
 	}
 
 	/*
-	 * Sets the Sprite's movement in the x and y directions
-	 * to the specified amounts.
-	 */
-	public void setStep(int dx, int dy)
-	{
-		this.dx = dx;
-		this.dy = dy;
-	}
-
-	/*
-	 * Returns the change in x per update of the Sprite.
-	 */
-	public int getXStep()
-	{
-		return dx;
-	}
-
-	/*
-	 * Returns the change in y per update of the Sprite.
-	 */
-	public int getYStep()
-	{
-		return dy;
-	}
-
-	/*
 	 * Update the Sprite by moving in the x and y directions by its
 	 * given amounts. If the Sprite is looping, update the image and tick.
 	 */
@@ -258,7 +209,7 @@ public class Sprite
 	public BufferedImage getCurrentImage()
 	{
 		if (numImages != 0)
-			return (BufferedImage) ims.get(imageNum).get(imPosition);
+			return (BufferedImage) ims.get(imPosition);
 		else
 			return null; 
 	}

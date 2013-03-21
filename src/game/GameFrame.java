@@ -1,3 +1,4 @@
+package game;
 /*
  * Allan Simmons
  * CSC493

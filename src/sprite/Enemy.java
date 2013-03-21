@@ -1,10 +1,12 @@
+package sprite;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 
 /*
  * This is the base class for all enemies in the game.
  */
-public class EnemySprite extends Sprite
+public class Enemy extends Entity
 {
 	private static double DURATION = 0.5;
 
@@ -14,10 +16,9 @@ public class EnemySprite extends Sprite
 	private int moveSizeY;
 	private int distanceMoved = 0;
 	
-	@SuppressWarnings("unchecked")
-	public EnemySprite(int x, int y, int w, int h, ArrayList<ArrayList> images, int moveX, int moveY, int hp)
+	public Enemy(int x, int y, ArrayList<BufferedImage> images, int moveX, int moveY, int hp, EntityType type)
 	{
-		super(x, y, w, h, images, DURATION, 0, 0);
+		super(x, y, images, DURATION, type);
 		hitPoints = hp;
 		isFacingRight  = true;
 		moveSizeX = moveX;

@@ -1,3 +1,4 @@
+package game;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
@@ -11,7 +12,7 @@ import javax.swing.*;
  */
 public class ImagesLoader
 {
-	private final static String IMAGE_DIR = "Images/";
+	private final static String IMAGE_DIR = "../Images/";
 
 	@SuppressWarnings("unchecked")
 	private HashMap imagesMap; 
@@ -61,6 +62,7 @@ public class ImagesLoader
 		System.out.println("Reading file: " + imsFNm);
 		try
 		{
+			System.out.printf("%s\n", imsFNm);
 			InputStream in = this.getClass().getResourceAsStream(imsFNm);
 			BufferedReader br = new BufferedReader( new InputStreamReader(in));
 			// BufferedReader br = new BufferedReader( new FileReader(imsFNm));

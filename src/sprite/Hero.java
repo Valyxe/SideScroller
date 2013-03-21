@@ -1,11 +1,14 @@
+package sprite;
+
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /*
  * This is the class that controls the player character, the Hero.
  */
-public class HeroSprite extends Sprite
+public class Hero extends Entity
 {
 	private static double DURATION = 0.1;  // secs
     // total time to cycle through all the images
@@ -29,7 +32,6 @@ public class HeroSprite extends Sprite
 	private int vertStep;   // distance to move vertically in one step
 	private int upCount;
 
-	private BricksManager brickMan;
 	private int moveSize;   // obtained from BricksManager
 
 	private int xWorld, yWorld;
@@ -41,16 +43,13 @@ public class HeroSprite extends Sprite
 	private int keys = 0;
 
 	@SuppressWarnings("unchecked")
-	public HeroSprite(int w, int h, ArrayList<ArrayList> images, int brickMvSz, BricksManager bm, int p, int hp)
+	public Hero(int x, int y, ArrayList<BufferedImage> images, int p, int hp, EntityType type)
 	{
-		super(w/4, h/2, w, h, images, DURATION, 5, 5);
+		super(x, y, images, DURATION, type);
 
 		//Set Variables
-		moveSize = brickMvSz;
-		brickMan = bm;
+		moveSize = 1;
 		period = p/6;
-		//No inate movement
-		setStep(0,0);
 
 		isFacingRight = true;
 		isStill = true;
@@ -195,7 +194,7 @@ public class HeroSprite extends Sprite
 	 * Method to find if the hero will run into a door.
 	 * Running into an unlocked door halts movement.
 	 */
-	public boolean willHitDoor(ArrayList<DoorSprite> doors)
+	public boolean willHitDoor(ArrayList<Door> doors)
 	{	
 		//Cannot hit a door if still.
 		if(isStill)
@@ -214,7 +213,7 @@ public class HeroSprite extends Sprite
 		Point p = new Point(xMid, yMid);
 		
 		//Find the door nearest to the hero.
-		DoorSprite d;
+		Door d;
 		boolean hit = false;
 		for(int i = 0; i < doors.size(); i++)
 		{
@@ -235,7 +234,7 @@ public class HeroSprite extends Sprite
 	 * it if it has at least one key. Unlocking a door de-activates it
 	 * and sets a flag so that no more keys will be used on the same door.
 	 */
-	public void nearDoor(ArrayList<DoorSprite> doors)
+	public void nearDoor(ArrayList<Door> doors)
 	{
 		int i;
 		//Use bounding rectangles to detect collision.
@@ -257,7 +256,7 @@ public class HeroSprite extends Sprite
 	 * This method tests for enemy collision. If the hero is facing the right direction
 	 * and attacking, the enemy is damaged; otherwise the hero is damaged.
 	 */
-	public void hitEnemy(ArrayList<EnemySprite> enemies, EnemySprite boss)
+	public void hitEnemy(ArrayList<Enemy> enemies, Enemy boss)
 	{
 		int i;
 		Rectangle heroBox = this.getMyRectangle();

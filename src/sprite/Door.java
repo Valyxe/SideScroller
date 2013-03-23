@@ -1,6 +1,6 @@
 package sprite;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import com.badlogic.gdx.graphics.Texture;
 
 
 /*
@@ -8,13 +8,12 @@ import java.util.ArrayList;
  */
 public class Door extends Entity
 {
-	private static double DURATION = 0.5;
-	private boolean doorUnlocked;
+	private boolean doorLocked;
 	
-	public Door(int x, int y, ArrayList<BufferedImage> images, EntityType type)
+	public Door(int x, int y, ArrayList<Texture> images, EntityType type)
 	{
-		super(x, y, images, DURATION, type);
-		doorUnlocked = false;
+		super(x, y, images, type);
+		doorLocked = true;
 	}
 
 	/*
@@ -22,15 +21,15 @@ public class Door extends Entity
 	 */
 	public void openDoor()
 	{
-		doorUnlocked = true;
+		doorLocked = false;
 		setActive(false);
 	}
 	
 	/*
 	 * This method returns whether or not the door is locked.
 	 */
-	public boolean isUnlocked()
+	public boolean isLocked()
 	{
-		return doorUnlocked;
+		return doorLocked;
 	}
 }

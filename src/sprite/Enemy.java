@@ -1,6 +1,6 @@
 package sprite;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import com.badlogic.gdx.graphics.Texture;
 
 
 /*
@@ -8,28 +8,22 @@ import java.util.ArrayList;
  */
 public class Enemy extends Entity
 {
-	private static double DURATION = 0.5;
-
-	private boolean isFacingRight;
+	private boolean isFacingRight = true;
 	private int hitPoints;
-	private int moveSizeX;
-	private int moveSizeY;
-	private int distanceMoved = 0;
+	private int moveSize = 5, distanceMoved = 0;
+	private static final int maxMove = 25;
 	
-	public Enemy(int x, int y, ArrayList<BufferedImage> images, int moveX, int moveY, int hp, EntityType type)
+	public Enemy(int x, int y, ArrayList<Texture> images, int hp, EntityType type)
 	{
-		super(x, y, images, DURATION, type);
+		super(x, y, images, type);
 		hitPoints = hp;
-		isFacingRight  = true;
-		moveSizeX = moveX;
-		moveSizeY = moveY;
 	}
 	
 	/*
 	 * This method takes care of what happens when an enemy has been hit by the hero.
 	 * One hit point is deducted; if the total is 0 or less, the enemy is defeated.
 	 */
-	public void wasHit()
+	public void takeHit()
 	{
 		hitPoints--;
 		if(hitPoints <= 0)
@@ -51,72 +45,34 @@ public class Enemy extends Entity
 	 * The enemy's location is updated; the enemy patrols
 	 * a location, moving left and then right over a central location.
 	 */
-	public void updateSprite()
+	public void update()
 	{
 		//Determine facing.
 		if (isFacingRight)
 		{
 			//Update position.
-			locx += moveSizeX;
-			distanceMoved += moveSizeX;
+			translate(moveSize, 0);
+			distanceMoved+=moveSize;
 			//Check to see if movement is past max distance.
-			if(distanceMoved >= ((getCurrentImage().getWidth())/1.5))
+			if(distanceMoved >= maxMove)
 			{
 				//Go in other direction.
 				isFacingRight = false;
-				setImage(0);
+				setImage(0, 1, 1);
 			}
 		}
 		else
 		{
 			//Update position.
-			locx -= moveSizeX;
-			distanceMoved -= moveSizeX;
+			translate(-moveSize, 0);
+			distanceMoved-=moveSize;
 			//Check to see if movement is past max distance.
-			if(distanceMoved <= (-(getCurrentImage().getWidth())/1.5))
+			if(distanceMoved <= (-maxMove))
 			{
 				//Go in other direction.
 				isFacingRight = true;
-				setImage(1);
+				setImage(1, 1, 1);
 			}
 		}
-		//SupX;er!
-		super.updateSprite();
-	}
-	
-	/*
-	 * Move the enemy in the positive x-direction.
-	 * This is used for horizontal scrolling across the screen.
-	 */
-	public void moveRight()
-	{
-		locx += moveSizeX;
-	}
-	
-	/* 
-	 * Move the enemy in the negative x-direction.
-	 * This is used for horizontal scrolling across the screen.
-	 */
-	public void moveLeft()
-	{
-		locx -= moveSizeX;
-	}
-
-	/* 
-	 * Move the enemy in the positive y-direction.
-	 * This is used for vertical scrolling across the screen.
-	 */
-	public void moveUp()
-	{
-		locy -= 4*moveSizeY;
-	}
-	
-	/* 
-	 * Move the enemy in the negative y-direction.
-	 * This is used for vertical scrolling across the screen.
-	 */
-	public void moveDown()
-	{
-		locy += moveSizeY;
 	}
 }

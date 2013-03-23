@@ -1,7 +1,12 @@
 package sprite;
-import java.awt.*;
-import java.awt.image.*;
 import java.util.ArrayList;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 
 /*
  * This is the parent class for all Sprites in this game.
@@ -9,95 +14,61 @@ import java.util.ArrayList;
 public class Entity 
 {
 	//Default dimensions when there is no image
-	protected static final int SIZE = 12;   
+	protected static final int SIZE = 12;
 
 	//Image-related
-	private ArrayList<BufferedImage> ims;
-	private String imageName;
-	protected BufferedImage image;
-	private int width, height;
-
-	protected boolean isLooping;
-
-	private boolean isActive = true;      
-
-	protected int locx, locy;
+	private ArrayList<Texture> ims;
+	private TextureRegion[] currentImage;
+	private Animation currentAnimation;
+	private SpriteBatch spriteBatch;
+	private TextureRegion currentFrame;
+	private int width, height, locx, locy;
+	private float stateTime;
+	private boolean isActive = true;
 	
-	private boolean isRepeating, ticksIgnored;
-	private int animPeriod;
-	private long animTotalTime;
-	private int showPeriod;
-	private double seqDuration;
-	private int numImages;
-	private int imPosition;
+	private EntityType eType;
 
-	public Entity(int x, int y, ArrayList<BufferedImage> images, double seqDuration, EntityType type) 
+	public Entity(int x, int y, ArrayList<Texture> images, EntityType type) 
 	{
 		locx = x; locy = y;
 		ims = images;
-		setImage(0);
-		
-		
-		numImages = ims.size();
-		imPosition = 0;
-		ticksIgnored = false;
-		showPeriod = (int) (1000 * seqDuration / numImages);
+		setImage(0, 1, 1);
+		eType = type;
 	}
 
 	/*
 	 * This method sets the current image set of the Sprite
 	 * to the specified number.
 	 */
-	public void setImage(int num)
+	public void setImage(int num, int cols, int rows)
 	{
-		//Set to initial image of set.
-		image = (BufferedImage) ims.get(0);
-		imageNum = num;
-		if(image == null)
+		//Set to initial image of set.		
+		TextureRegion[][] tmp = TextureRegion.split(ims.get(num), ims.get(num).getWidth()/cols, ims.get(num).getHeight()/rows);
+		currentImage = new TextureRegion[cols * rows];
+		int index = 0;
+		for(int i = 0; i < rows; i++)
 		{
-			System.out.println("No sprite image for " + imageName);
+			for (int j = 0; j < cols; j++)
+			{
+				currentImage[index++] = tmp[i][j];
+			}
+		}
+		
+		if(currentImage == null)
+		{
+			System.out.println("No sprite image for " + this.getClass() + " " + num);
 			width = SIZE;
 			height = SIZE;
 		}
 		else
 		{
-			width = image.getWidth();
-			height = image.getHeight();
+			width = ims.get(num).getWidth()/cols;
+			height = ims.get(num).getHeight()/rows;
 		}
- 		
-		numImages = ims.size();
-		animTotalTime = 0;
-		//Not looping, even if was before.
-		isLooping = false;
-	}
-
-	/*
-	 * Starts the looping of the Sprite's image.
-	 */
-	public void loopImage(int animPeriod, double seqDuration)
-	{
-		//Can only loop if there is more than one image.
-		imPosition = 0;
-		if(ims.size() > 1)
-		{
-			this.animPeriod = animPeriod;
-			this.seqDuration = seqDuration;
-			isLooping = true;
-			ticksIgnored = false;
-		}
-		else
-			System.out.println(imageName + " is not a sequence of images");
-	}
-
-	/*
-	 * Stops the looping of the current image and resets
-	 * the associated variables.
-	 */
-	public void stopLooping()
-	{
-		stop();
-		isLooping = false;
-		imPosition = 0;
+		
+		currentAnimation = new Animation(0.025f, currentImage);
+        spriteBatch = new SpriteBatch();
+        stateTime = 0f;
 	}
 
 	/*
@@ -114,6 +85,14 @@ public class Entity
 	public int getHeight()
 	{
 		return height;
+	}
+	
+	/*
+	 * Returns the type of the entity.
+	 */
+	public EntityType getType()
+	{
+		return eType;
 	}
 	
 	/*
@@ -166,155 +145,25 @@ public class Entity
 	{
 		return locy;
 	}
-
-	/*
-	 * Update the Sprite by moving in the x and y directions by its
-	 * given amounts. If the Sprite is looping, update the image and tick.
-	 */
-	public void updateSprite()
-	{
-		if(isActive())
-		{
-			locx += dx;
-			locy += dy;
-			if(isLooping)
-				updateTick();
-		}
-	}
-	
-	/*
-	 * For looping images, the image displayed needs to be updated with each game update.
-	 */
-	public void updateTick()
-	{
-		//Update only if it needs to.
-		if(!ticksIgnored)
-		{
-			//Update total animation time, modulo the animation sequence duration.
-			animTotalTime = (animTotalTime + animPeriod) % (long)(1000 * seqDuration);
-			
-			//Calculate current displayable image position.
-			imPosition = (int) (animTotalTime / showPeriod);	//In range 0 to num-1.
-			if((imPosition == numImages-1) && (!isRepeating))
-			{
-				// At end of sequence, stop at this image.
-				ticksIgnored = true;
-			}
-		}
-	}
-	
-	/*
-	 * Returns the current image of the Sprite.
-	 */
-	public BufferedImage getCurrentImage()
-	{
-		if (numImages != 0)
-			return (BufferedImage) ims.get(imPosition);
-		else
-			return null; 
-	}
-
-	/*
-	 * Returns the current position in the current image strip of the Sprite.
-	 */
-	public int getCurrentPosition()
-	{
-		return imPosition;
-	}
-	
-	/*
-	 * Stop looping by ignoring the update ticks.
-	 */
-	public void stop()
-	{
-		ticksIgnored = true;
-	}
-	
-	/*
-	 * Returns whether or not the looping has been stopped.
-	 */
-	public boolean isStopped()
-	{
-		return ticksIgnored;
-	}
-	
-	/*
-	 * Returns whether or not the image is currently looping.
-	 */
-	public boolean isLooping()
-	{
-		return isLooping;
-	}
-	
-	/*
-	 * Returns if the looping is at it's end, but only true if not repeating loop.
-	 */
-	public boolean atSequenceEnd()
-	{
-		return ((imPosition == numImages-1) && (!isRepeating));
-	}
-	
-	/*
-	 * Restarts the imgage loop at the given position.
-	 */
-	public void restartAt(int imPosn)
-	{
-		if(numImages != 0)
-		{
-			if((imPosn < 0) || (imPosn > numImages-1))
-			{
-				System.out.println("Out of range restart, starting at 0");
-				imPosn = 0;
-			}
-
-			imPosition = imPosn;
-			// Calculate a suitable animation time.
-			animTotalTime = (long) imPosition * showPeriod;
-	      ticksIgnored = false;
-	      }
-	}
-
-	/*
-	 * Resume the looping of the image from the last location it was at.
-	 * This is achieved by turning ticks back on.
-	 */
-	public void resume()
-	{
-		if(numImages != 0)
-			ticksIgnored = false;
-	}
 	
 	/*
 	 * Draw the Sprite at its location on the screen.
 	 */
-	public void drawSprite(Graphics g) 
+	public void render()
 	{
-		//Only draw if the Sprite is active.
-		if(isActive())
-		{
-			//If it has no image, draw a yellow circle.
-			if(image == null)
-			{
-				g.setColor(Color.yellow);
-				g.fillOval(locx, locy, SIZE, SIZE);
-				g.setColor(Color.black);
-			}
-			//Otherwise draw its current image.
-			else
-			{
-				if(isLooping)
-					image = getCurrentImage();
-				g.drawImage(image, locx, locy, null);
-			}
-		}
+		stateTime += Gdx.graphics.getDeltaTime();
+        currentFrame = currentAnimation.getKeyFrame(stateTime, true);
+        spriteBatch.begin();
+        spriteBatch.draw(currentFrame, locx, locy);
+        spriteBatch.end();
 	}
 	
 	/*
 	 * Gets a bounding rectangle for the Sprite using its current image.
 	 * This is used for collision detection.
 	 */
-	public Rectangle getMyRectangle()
+	public BoundingBox getBoundingBox()
 	{
-		return  new Rectangle(locx, locy, width, height);
+		return new BoundingBox(new Vector3(locx, locy, 0), new Vector3(locx + width, locy + height, 0));
 	}
 }

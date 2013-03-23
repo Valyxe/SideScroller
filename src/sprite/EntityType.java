@@ -2,5 +2,5 @@ package sprite;
 
 public enum EntityType
 {
-	HERO, ENEMY, BOSS, DOOR, BRICK;
+	HERO, ENEMY, BOSS, DOOR, BRICK, KEY;
 }
